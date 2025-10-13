@@ -25,5 +25,5 @@ void print_time(void)
 
     localtime_r(&now, &timeinfo);
     strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    printf("[%s] ", strftime_buf);
+    printf("[%s] \n", strftime_buf);
 }

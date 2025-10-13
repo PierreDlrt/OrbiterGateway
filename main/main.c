@@ -21,6 +21,8 @@
 #include "nvs_flash.h"
 #include "blecent.h"
 #include "utils.h"
+#include "esp_netif_sntp.h"
+#include "wifi.h"
 
 #if CONFIG_EXAMPLE_USE_CI_ADDRESS
 #ifdef CONFIG_IDF_TARGET_ESP32
@@ -56,6 +58,17 @@ void forwardToServer(uint8_t device_id, uint8_t *data, uint8_t len)
     }
 }
 
+esp_err_t init_datetime(void)
+{
+    esp_err_t ret;
+
+    esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
+    ret = esp_netif_sntp_init(&config);
+    print_time();
+
+    return ret;
+}
+
 void app_main(void)
 {
     /* Initialize NVS — it is used to store PHY calibration data */
@@ -66,6 +79,8 @@ void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+
+    wifi_init_sta(NULL);
 
     ble_cent_init(forwardToServer);
 }
