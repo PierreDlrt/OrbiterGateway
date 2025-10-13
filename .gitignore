@@ -56,3 +56,6 @@ dkms.conf
 
 # Secrets
 main/include/wifi_credentials.h
+
+# Config
+sdkconfig.*

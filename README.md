@@ -1,5 +1,5 @@
 # OrbiterGateway
-Firmware for photo sensor gateway to server
+Firmware for photo sensor gateway to home server
 
 ## Hardware
 Reference used for this project: `ESP32-C3-DevKitM-1 v1.6`

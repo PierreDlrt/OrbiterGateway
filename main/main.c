@@ -21,7 +21,6 @@
 #include "nvs_flash.h"
 #include "blecent.h"
 #include "utils.h"
-#include "esp_netif_sntp.h"
 #include "wifi.h"
 
 #if CONFIG_EXAMPLE_USE_CI_ADDRESS
@@ -46,27 +45,21 @@
 #endif
 #endif
 
+static const char *TAG = "MAIN";
+
 void forwardToServer(uint8_t device_id, uint8_t *data, uint8_t len)
 {
-    print_time();
+    char strtime_buf[64];
 
     if (len == 4)
     {
-        printf("From " SENSOR_NAME_SUF "%u: Rchan2 = %f, Rchan3 = %f\n", device_id,
-               (float)((uint16_t *)data)[0],
-               (float)((uint16_t *)data)[1]);
+        get_time(strtime_buf, sizeof strtime_buf);
+
+        ESP_LOGI(TAG, "[%s] From " SENSOR_NAME_SUF "%u: Rchan2 = %u, Rchan3 = %u",
+                 strtime_buf, device_id,
+                 ((uint16_t *)data)[0],
+                 ((uint16_t *)data)[1]);
     }
-}
-
-esp_err_t init_datetime(void)
-{
-    esp_err_t ret;
-
-    esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
-    ret = esp_netif_sntp_init(&config);
-    print_time();
-
-    return ret;
 }
 
 void app_main(void)
@@ -80,7 +73,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    wifi_init_sta(NULL);
+    wifi_init_sta(init_datetime);
 
     ble_cent_init(forwardToServer);
 }

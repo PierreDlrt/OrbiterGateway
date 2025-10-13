@@ -9,7 +9,7 @@
 #include "host/ble_esp_gattc_cache.h"
 #endif
 
-static const char *tag = "NimBLE_BLE_CENT";
+static const char *tag = "BLE_APP";
 
 #if MYNEWT_VAL(BLE_EATT_CHAN_NUM) > 0
 static uint16_t cids[MYNEWT_VAL(BLE_EATT_CHAN_NUM)];
@@ -153,7 +153,7 @@ void ble_cent_init(ble_parse_data_t cb)
 #if CONFIG_BT_NIMBLE_GAP_SERVICE
     int m;
     /* Set the default device name. */
-    m = ble_svc_gap_device_name_set("nimble-blecent");
+    m = ble_svc_gap_device_name_set("OrbiterGateway");
     assert(m == 0);
 #endif
 
