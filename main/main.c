@@ -27,7 +27,7 @@
 #include "console/console.h"
 #include "services/gap/ble_svc_gap.h"
 #include "blecent.h"
-#include "esp_sntp.h"
+#include "utils.h"
 #if MYNEWT_VAL(BLE_GATT_CACHING)
 #include "host/ble_esp_gattc_cache.h"
 #endif
@@ -54,18 +54,6 @@
 #endif
 #endif
 
-#if MYNEWT_VAL(BLE_GATTC)
-/*** The UUID of the service containing the subscribable characteristic ***/
-static const ble_uuid_t *remote_svc_uuid =
-    BLE_UUID128_DECLARE(0x2d, 0x71, 0xa2, 0x59, 0xb4, 0x58, 0xc8, 0x12,
-                        0x99, 0x99, 0x43, 0x95, 0x12, 0x2f, 0x46, 0x59);
-
-/*** The UUID of the subscribable chatacteristic ***/
-static const ble_uuid_t *remote_chr_uuid =
-    BLE_UUID128_DECLARE(0x00, 0x00, 0x00, 0x00, 0x11, 0x11, 0x11, 0x11,
-                        0x22, 0x22, 0x22, 0x22, 0x33, 0x33, 0x33, 0x33);
-#endif
-
 static const char *tag = "NimBLE_BLE_CENT";
 
 #if MYNEWT_VAL(BLE_EATT_CHAN_NUM) > 0
@@ -74,33 +62,6 @@ static uint16_t bearers;
 #endif
 
 void ble_store_config_init(void);
-
-static void print_byte(uint8_t *bytes, int len)
-{
-    int i;
-
-    for (i = 0; i < len; i++)
-    {
-        printf("0x%02x ", bytes[i]);
-    }
-    putchar('\n');
-}
-
-void print_time(void)
-{
-    time_t now;
-    char strftime_buf[64];
-    struct tm timeinfo;
-
-    time(&now);
-    // Set timezone to China Standard Time
-    setenv("TZ", "CET-1", 1);
-    tzset();
-
-    localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    printf("[%s] ", strftime_buf);
-}
 
 static int
 gap_evt_cb(struct ble_gap_event *event, void *arg)
@@ -118,8 +79,13 @@ gap_evt_cb(struct ble_gap_event *event, void *arg)
         if (!strncmp(name, "Orbiter", 7))
         {
             print_time();
-            printf("From %s: ", name);
-            print_byte(fields.mfg_data, fields.mfg_data_len);
+
+            if (fields.mfg_data_len == 4)
+            {
+                printf("From %s: Rchan2 = %f, Rchan3 = %f\n", name,
+                       (float)((uint16_t *)fields.mfg_data)[0],
+                       (float)((uint16_t *)fields.mfg_data)[1]);
+            }
         }
     }
 
