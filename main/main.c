@@ -22,6 +22,7 @@
 #include "blecent.h"
 #include "utils.h"
 #include "wifi.h"
+#include "mqtt.h"
 
 #if CONFIG_EXAMPLE_USE_CI_ADDRESS
 #ifdef CONFIG_IDF_TARGET_ESP32
@@ -47,18 +48,42 @@
 
 static const char *TAG = "MAIN";
 
-void forwardToServer(uint8_t device_id, uint8_t *data, uint8_t len)
+#define APP_BANNER()                                                       \
+    do                                                                     \
+    {                                                                      \
+        ESP_LOGI(TAG, "------------------------------------------------"); \
+        ESP_LOGI(TAG, "_______       ______ __________             ");     \
+        ESP_LOGI(TAG, "__  __ \\_________  /____(_)_  /_____________");    \
+        ESP_LOGI(TAG, "_  / / /_  ___/_  __ \\_  /_  __/  _ \\_  ___/");   \
+        ESP_LOGI(TAG, "/ /_/ /_  /   _  /_/ /  / / /_ /  __/  /    ");     \
+        ESP_LOGI(TAG, "\\____/ /_/    /_.___//_/  \\__/ \\___//_/     ");  \
+        ESP_LOGI(TAG, "------------------------------------------------"); \
+    } while (0)
+
+static void forwardToServer(uint8_t device_id, time_t timestamp, uint8_t *data, uint8_t len)
 {
-    char strtime_buf[64];
+    char payload[128];
+    char topic[32];
+    char time_buf[64];
+    struct tm timeinfo;
 
     if (len == 4)
     {
-        get_time(strtime_buf, sizeof strtime_buf);
-
-        ESP_LOGI(TAG, "[%s] From " SENSOR_NAME_SUF "%u: Rchan2 = %u, Rchan3 = %u",
-                 strtime_buf, device_id,
+        // Build json
+        snprintf(payload, sizeof payload, "{\"r1k\": %u, \"r10k\": %u, \"timestamp\": %lld}",
                  ((uint16_t *)data)[0],
-                 ((uint16_t *)data)[1]);
+                 ((uint16_t *)data)[1],
+                 timestamp);
+
+        // Get time for log
+        localtime_r(&timestamp, &timeinfo);
+        strftime(time_buf, 64, "%F %T", &timeinfo);
+        snprintf(topic, sizeof topic, "sensors/" SENSOR_NAME_SUF "%u", device_id);
+
+        // Send to MQTT
+        mqtt_send(topic, payload, strlen(payload), 1);
+
+        ESP_LOGI(TAG, "[%s] Publish %s on %s", time_buf, payload, topic);
     }
 }
 
@@ -73,7 +98,11 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
+    APP_BANNER();
+
     wifi_init_sta(init_datetime);
+
+    mqtt_app_init();
 
     ble_cent_init(forwardToServer);
 }

@@ -23,6 +23,7 @@
 #include "host/ble_hs.h"
 #include "modlog/modlog.h"
 #include "esp_central.h"
+#include "utils.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -30,7 +31,7 @@ extern "C"
 
 #define SENSOR_NAME_SUF "Orbiter"
 
-    typedef void (*ble_parse_data_t)(uint8_t device_id, uint8_t *data, uint8_t len);
+    typedef void (*ble_parse_data_t)(uint8_t device_id, time_t timestamp, uint8_t *data, uint8_t len);
 
     struct ble_hs_adv_fields;
     struct ble_gap_conn_desc;

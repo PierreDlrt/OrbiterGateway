@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "esp_system.h"
+#include "esp_sntp.h"
 
 void print_byte(uint8_t *bytes, int len);
 esp_err_t init_datetime(void);

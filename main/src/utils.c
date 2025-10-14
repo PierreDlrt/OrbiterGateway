@@ -1,5 +1,4 @@
 #include "utils.h"
-#include "esp_sntp.h"
 #include "esp_netif_sntp.h"
 #include "esp_log.h"
 
@@ -31,7 +30,7 @@ void print_time(void)
     char strftime_buf[64];
 
     get_time(strftime_buf, sizeof strftime_buf);
-    printf("[%s] \n", strftime_buf);
+    printf("[%s]", strftime_buf);
 }
 
 esp_err_t init_datetime(void)

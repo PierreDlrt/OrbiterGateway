@@ -25,6 +25,9 @@ gap_evt_cb(struct ble_gap_event *event, void *arg)
 {
     struct ble_hs_adv_fields fields;
     char name[32];
+    time_t timestamp;
+
+    time(&timestamp);
 
     if (event->type == BLE_GAP_EVENT_DISC)
     {
@@ -38,7 +41,7 @@ gap_evt_cb(struct ble_gap_event *event, void *arg)
             if (!strncmp(name, SENSOR_NAME_SUF, strlen(SENSOR_NAME_SUF)))
             {
                 parse_cb(strtol(&name[strlen(SENSOR_NAME_SUF)], NULL, 10),
-                         fields.mfg_data, fields.mfg_data_len);
+                         timestamp, fields.mfg_data, fields.mfg_data_len);
             }
         }
     }
