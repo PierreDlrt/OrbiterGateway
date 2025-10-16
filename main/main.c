@@ -69,11 +69,22 @@ static void forwardToServer(uint8_t device_id, time_t timestamp, uint8_t *data, 
 
     if (len == 4)
     {
+        memset(payload, 0, sizeof payload);
+
         // Build json
-        snprintf(payload, sizeof payload, "{\"V1k\": %u, \"V10k\": %u, \"timestamp\": %lld}",
-                 ((uint16_t *)data)[0],
-                 ((uint16_t *)data)[1],
-                 timestamp);
+        snprintf(payload, sizeof payload, "{");
+        if (((uint16_t *)data)[0] != 0)
+        {
+            snprintf(payload + strlen(payload), sizeof payload - strlen(payload),
+                     "\"V1k\": %u, ", ((uint16_t *)data)[0]);
+        }
+        if (((uint16_t *)data)[1] != 0)
+        {
+            snprintf(payload + strlen(payload), sizeof payload - strlen(payload),
+                     "\"V10k\": %u, ", ((uint16_t *)data)[1]);
+        }
+        snprintf(payload + strlen(payload), sizeof payload - strlen(payload),
+                 "\"timestamp\": %lld}", timestamp);
 
         // Get time for log
         localtime_r(&timestamp, &timeinfo);
