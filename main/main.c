@@ -70,7 +70,7 @@ static void forwardToServer(uint8_t device_id, time_t timestamp, uint8_t *data, 
     if (len == 4)
     {
         // Build json
-        snprintf(payload, sizeof payload, "{\"r1k\": %u, \"r10k\": %u, \"timestamp\": %lld}",
+        snprintf(payload, sizeof payload, "{\"V1k\": %u, \"V10k\": %u, \"timestamp\": %lld}",
                  ((uint16_t *)data)[0],
                  ((uint16_t *)data)[1],
                  timestamp);
